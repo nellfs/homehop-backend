@@ -16,6 +16,7 @@ const DUMMY_PLACES = [
 
 function getPlaceById(req, res, next) {
   const placeId = req.params.pid;
+
   const place = DUMMY_PLACES.find((p) => {
     return p.id == placeId;
   });
@@ -43,5 +44,5 @@ function getPlaceByUserId(req, res, next) {
   res.json({ place });
 }
 
-exports.getPlaceById = getPlaceById();
-exports.getPlaceByUserId = getPlaceByUserId();
+exports.getPlaceById = getPlaceById;
+exports.getPlaceByUserId = getPlaceByUserId;
