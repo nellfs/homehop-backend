@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
+const authInfo = require("./auth-info");
 const placesRoutes = require("./routes/places-routes");
 const usersRoutes = require("./routes/users-routes");
 const HttpError = require("./models/http-error");
@@ -27,7 +28,7 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect()
+  .connect(authInfo.getConnectionString())
   .then(() => {
     app.listen(5000);
   })
