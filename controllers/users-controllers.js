@@ -13,8 +13,18 @@ const DUMMY_USERS = [
   },
 ];
 
-function getUsers(req, res, next) {
-  res.json({ users: DUMMY_USERS });
+async function getUsers(req, res, next) {
+  let users;
+  try {
+    users = await User.find({}, "-password");
+  } catch (err) {
+    const error = new HttpError(
+      "Fetching users faile, please try again later.",
+      500
+    );
+    return next(error);
+  }
+  res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 }
 
 async function signup(req, res, next) {
@@ -24,7 +34,7 @@ async function signup(req, res, next) {
       new HttpError("Invalid inputs passed, please check your data.", 422)
     );
   }
-  const { name, email, password, places } = req.body;
+  const { name, email, password } = req.body;
 
   let existingUser;
   try {
@@ -50,7 +60,7 @@ async function signup(req, res, next) {
     email,
     image: "https://thispersondoesnotexist.com/image",
     password, // ((to encrypt))
-    places,
+    places: [],
   });
 
   try {
@@ -63,15 +73,27 @@ async function signup(req, res, next) {
   res.status(201).json({ user: createdUser.toObject({ getters: true }) });
 }
 
-function login(req, res, next) {
+async function login(req, res, next) {
   const { email, password } = req.body;
 
-  const identifiedUser = DUMMY_USERS.find((u) => u.email === email);
-  if (!identifiedUser || identifiedUser.password !== password) {
-    throw new HttpError(
-      "Could not identify user, credentials seem to be wrong.",
+  let existingUser;
+
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (err) {
+    const error = new HttpError(
+      "Logging in failed, please try again later.",
+      500
+    );
+    return next(error);
+  }
+
+  if (!existingUser || existingUser.password !== password) {
+    const error = new HttpError(
+      "Invalid credientials, could not log you in.",
       401
     );
+    return next(error);
   }
 
   res.json({ message: "Logged in!" });
