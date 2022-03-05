@@ -1,4 +1,4 @@
-# HomeHop-Backend
+# HomeHop
 
 HomeHop é uma aplicação web onde você poderia gerir pessoas e locais
 
